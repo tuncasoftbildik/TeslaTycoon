@@ -20,7 +20,48 @@ interface Props {
   label?: string;
 }
 
-function Wheels({ wheelbase = 0.7, track = 0.55, y = 0.2, r = 0.22 }) {
+function Wheel({ position, r = 0.32 }: { position: [number, number, number]; r?: number }) {
+  return (
+    <group position={position} rotation={[Math.PI / 2, 0, 0]}>
+      {/* tire */}
+      <mesh>
+        <cylinderGeometry args={[r, r, 0.22, 32]} />
+        <meshStandardMaterial color="#0a0a0a" roughness={0.95} metalness={0.05} />
+      </mesh>
+      {/* sidewall inner ring (darker) */}
+      <mesh position={[0, 0.111, 0]}>
+        <cylinderGeometry args={[r * 0.92, r * 0.92, 0.005, 32]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
+      </mesh>
+      {/* rim disc */}
+      <mesh position={[0, 0.115, 0]}>
+        <cylinderGeometry args={[r * 0.7, r * 0.7, 0.01, 32]} />
+        <meshStandardMaterial color="#c8ccd1" metalness={0.95} roughness={0.2} />
+      </mesh>
+      {/* hub center */}
+      <mesh position={[0, 0.12, 0]}>
+        <cylinderGeometry args={[r * 0.18, r * 0.18, 0.02, 16]} />
+        <meshStandardMaterial color="#2a2a2a" metalness={0.7} roughness={0.3} />
+      </mesh>
+      {/* spokes (5 thin bars) */}
+      {[0, 1, 2, 3, 4].map((i) => {
+        const angle = (i / 5) * Math.PI * 2;
+        return (
+          <mesh
+            key={i}
+            position={[Math.cos(angle) * r * 0.4, 0.118, Math.sin(angle) * r * 0.4]}
+            rotation={[0, -angle, 0]}
+          >
+            <boxGeometry args={[r * 0.55, 0.008, r * 0.1]} />
+            <meshStandardMaterial color="#dadde2" metalness={0.9} roughness={0.25} />
+          </mesh>
+        );
+      })}
+    </group>
+  );
+}
+
+function Wheels({ wheelbase = 0.95, track = 0.62, y = 0.32, r = 0.32 }) {
   const positions: [number, number, number][] = [
     [-wheelbase, y, track],
     [wheelbase, y, track],
@@ -30,27 +71,130 @@ function Wheels({ wheelbase = 0.7, track = 0.55, y = 0.2, r = 0.22 }) {
   return (
     <>
       {positions.map((p, i) => (
-        <mesh key={i} position={p} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[r, r, 0.18, 24]} />
-          <meshStandardMaterial color="#111" roughness={0.8} />
-        </mesh>
+        <Wheel key={i} position={p} r={r} />
       ))}
     </>
   );
 }
 
 function Sedan({ color, cabinScale = 1 }: { color: string; cabinScale?: number }) {
+  // Realistic-ish low-poly sedan: layered body sections to fake aerodynamic curves
   return (
-    <group position={[0, -0.3, 0]}>
-      <mesh position={[0, 0.5, 0]}>
-        <boxGeometry args={[2.2, 0.5, 1]} />
-        <meshStandardMaterial color={color} metalness={0.7} roughness={0.25} />
+    <group position={[0, -0.35, 0]}>
+      {/* main body — wide, low */}
+      <mesh position={[0, 0.45, 0]} castShadow>
+        <boxGeometry args={[2.6, 0.32, 1.25]} />
+        <meshPhysicalMaterial
+          color={color}
+          metalness={0.85}
+          roughness={0.18}
+          clearcoat={1}
+          clearcoatRoughness={0.05}
+        />
       </mesh>
-      <mesh position={[0.05, 0.95, 0]}>
-        <boxGeometry args={[1.2 * cabinScale, 0.45 * cabinScale, 0.9]} />
-        <meshStandardMaterial color="#1a1a1a" metalness={0.4} roughness={0.2} />
+
+      {/* hood — slightly lower and forward */}
+      <mesh position={[0.95, 0.58, 0]} rotation={[0, 0, -0.04]}>
+        <boxGeometry args={[0.95, 0.12, 1.2]} />
+        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
       </mesh>
+
+      {/* trunk — slightly lower and rearward */}
+      <mesh position={[-1.0, 0.58, 0]} rotation={[0, 0, 0.03]}>
+        <boxGeometry args={[0.85, 0.12, 1.22]} />
+        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
+      </mesh>
+
+      {/* lower side skirt (dark) */}
+      <mesh position={[0, 0.25, 0]}>
+        <boxGeometry args={[2.5, 0.18, 1.28]} />
+        <meshStandardMaterial color="#0a0a0a" metalness={0.5} roughness={0.6} />
+      </mesh>
+
+      {/* cabin — angled greenhouse */}
+      <mesh position={[0.05, 0.85, 0]}>
+        <boxGeometry args={[1.45 * cabinScale, 0.4 * cabinScale, 1.1]} />
+        <meshPhysicalMaterial
+          color="#0a0e1a"
+          metalness={0.5}
+          roughness={0.05}
+          transmission={0.4}
+          thickness={0.5}
+          clearcoat={1}
+        />
+      </mesh>
+
+      {/* roof — solid color, slightly narrower */}
+      <mesh position={[0.05, 1.05, 0]}>
+        <boxGeometry args={[1.25 * cabinScale, 0.06, 1.0]} />
+        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
+      </mesh>
+
+      {/* windshield slope (front) — small angled wedge */}
+      <mesh position={[0.78, 0.85, 0]} rotation={[0, 0, -0.55]}>
+        <boxGeometry args={[0.45, 0.04, 1.05]} />
+        <meshPhysicalMaterial color="#0a0e1a" metalness={0.5} roughness={0.05} clearcoat={1} />
+      </mesh>
+
+      {/* rear window slope */}
+      <mesh position={[-0.72, 0.85, 0]} rotation={[0, 0, 0.55]}>
+        <boxGeometry args={[0.4, 0.04, 1.05]} />
+        <meshPhysicalMaterial color="#0a0e1a" metalness={0.5} roughness={0.05} clearcoat={1} />
+      </mesh>
+
+      {/* front bumper */}
+      <mesh position={[1.32, 0.42, 0]}>
+        <boxGeometry args={[0.08, 0.28, 1.2]} />
+        <meshStandardMaterial color="#0a0a0a" metalness={0.4} roughness={0.7} />
+      </mesh>
+
+      {/* rear bumper */}
+      <mesh position={[-1.32, 0.42, 0]}>
+        <boxGeometry args={[0.08, 0.28, 1.2]} />
+        <meshStandardMaterial color="#0a0a0a" metalness={0.4} roughness={0.7} />
+      </mesh>
+
+      {/* headlights (pair) — emissive */}
+      {[-0.45, 0.45].map((z, i) => (
+        <mesh key={i} position={[1.34, 0.5, z]}>
+          <boxGeometry args={[0.04, 0.08, 0.28]} />
+          <meshStandardMaterial color="#ffffff" emissive="#fff8dc" emissiveIntensity={2.5} />
+        </mesh>
+      ))}
+
+      {/* taillights (pair) — red emissive */}
+      {[-0.45, 0.45].map((z, i) => (
+        <mesh key={i} position={[-1.34, 0.5, z]}>
+          <boxGeometry args={[0.04, 0.07, 0.32]} />
+          <meshStandardMaterial color="#ff1a1a" emissive="#ff0000" emissiveIntensity={2} />
+        </mesh>
+      ))}
+
+      {/* side mirrors */}
+      {[-0.62, 0.62].map((z, i) => (
+        <mesh key={i} position={[0.5, 0.78, z]}>
+          <boxGeometry args={[0.1, 0.06, 0.08]} />
+          <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} />
+        </mesh>
+      ))}
+
+      {/* door line accents (thin dark stripes) */}
+      <mesh position={[0.15, 0.45, 0.628]}>
+        <boxGeometry args={[1.6, 0.005, 0.005]} />
+        <meshStandardMaterial color="#000" />
+      </mesh>
+      <mesh position={[0.15, 0.45, -0.628]}>
+        <boxGeometry args={[1.6, 0.005, 0.005]} />
+        <meshStandardMaterial color="#000" />
+      </mesh>
+
       <Wheels />
+
+      {/* contact shadow plane */}
+      <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <circleGeometry args={[1.8, 32]} />
+        <meshBasicMaterial color="#000" transparent opacity={0.35} />
+      </mesh>
     </group>
   );
 }
@@ -244,10 +388,17 @@ function Spinner({ variant }: { variant: Variant }) {
 export function Tesla3D({ variant = 'model3', label }: Props) {
   return (
     <View style={styles.wrap}>
-      <Canvas camera={{ position: [3, 2.4, 3.8], fov: 45 }}>
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[5, 5, 5]} intensity={1.2} />
-        <directionalLight position={[-3, 2, -2]} intensity={0.4} />
+      <Canvas camera={{ position: [3.2, 2.0, 4.2], fov: 38 }}>
+        <hemisphereLight args={['#ffffff', '#1a1a2e', 0.8]} />
+        <ambientLight intensity={0.3} />
+        {/* key light */}
+        <directionalLight position={[5, 6, 4]} intensity={2.2} color="#fff5e8" />
+        {/* fill light */}
+        <directionalLight position={[-4, 3, -3]} intensity={0.9} color="#a0c8ff" />
+        {/* rim light from behind */}
+        <directionalLight position={[-2, 4, -5]} intensity={1.4} color="#ffffff" />
+        {/* subtle bottom bounce */}
+        <pointLight position={[0, -1, 0]} intensity={0.4} color="#ff6644" />
         <Spinner variant={variant} />
       </Canvas>
       {label ? <Text style={styles.label}>{label}</Text> : null}
