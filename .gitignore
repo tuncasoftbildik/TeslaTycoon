@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Local agent state
+.remember/
+
 # Expo
 .expo/
 dist/

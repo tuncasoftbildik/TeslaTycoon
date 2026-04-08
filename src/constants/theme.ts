@@ -1,0 +1,15 @@
+export const theme = {
+  bg: '#000000',
+  bgGradient: ['#000000', '#171a20', '#1a1d24'] as const,
+  card: 'rgba(255,255,255,0.06)',
+  cardBorder: 'rgba(255,255,255,0.12)',
+  red: '#E31937',
+  redDark: '#CC0000',
+  blue: '#3E6AE1',
+  white: '#FFFFFF',
+  silver: '#C0C0C0',
+  muted: '#8a8d91',
+  gold: '#ffd700',
+  green: '#00c853',
+  locked: '#2a2d34',
+};
