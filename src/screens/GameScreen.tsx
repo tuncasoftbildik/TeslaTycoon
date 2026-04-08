@@ -4,7 +4,7 @@ import { useGameStore } from '../store/gameStore';
 import { BUSINESSES } from '../constants/businesses';
 import { BusinessCard } from '../components/BusinessCard';
 import { MoneyDisplay } from '../components/MoneyDisplay';
-import { Tesla3D } from '../components/Tesla3D';
+import { SafeTesla3D } from '../components/SafeTesla3D';
 import { theme } from '../constants/theme';
 
 export function GameScreen() {
@@ -22,7 +22,7 @@ export function GameScreen() {
   return (
     <View style={styles.wrap}>
       <MoneyDisplay />
-      <Tesla3D variant={showcase.id as any} label={showcase.name} />
+      <SafeTesla3D variant={showcase.id as any} label={showcase.name} />
       <ScrollView contentContainerStyle={styles.list} showsVerticalScrollIndicator={false}>
         {BUSINESSES.map((def) => (
           <BusinessCard key={def.id} def={def} state={businesses[def.id]} />

@@ -82,27 +82,21 @@ function Sedan({ color, cabinScale = 1 }: { color: string; cabinScale?: number }
   return (
     <group position={[0, -0.35, 0]}>
       {/* main body — wide, low */}
-      <mesh position={[0, 0.45, 0]} castShadow>
+      <mesh position={[0, 0.45, 0]}>
         <boxGeometry args={[2.6, 0.32, 1.25]} />
-        <meshPhysicalMaterial
-          color={color}
-          metalness={0.85}
-          roughness={0.18}
-          clearcoat={1}
-          clearcoatRoughness={0.05}
-        />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
       </mesh>
 
       {/* hood — slightly lower and forward */}
       <mesh position={[0.95, 0.58, 0]} rotation={[0, 0, -0.04]}>
         <boxGeometry args={[0.95, 0.12, 1.2]} />
-        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
       </mesh>
 
       {/* trunk — slightly lower and rearward */}
       <mesh position={[-1.0, 0.58, 0]} rotation={[0, 0, 0.03]}>
         <boxGeometry args={[0.85, 0.12, 1.22]} />
-        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
       </mesh>
 
       {/* lower side skirt (dark) */}
@@ -111,35 +105,28 @@ function Sedan({ color, cabinScale = 1 }: { color: string; cabinScale?: number }
         <meshStandardMaterial color="#0a0a0a" metalness={0.5} roughness={0.6} />
       </mesh>
 
-      {/* cabin — angled greenhouse */}
+      {/* cabin — dark glass look */}
       <mesh position={[0.05, 0.85, 0]}>
         <boxGeometry args={[1.45 * cabinScale, 0.4 * cabinScale, 1.1]} />
-        <meshPhysicalMaterial
-          color="#0a0e1a"
-          metalness={0.5}
-          roughness={0.05}
-          transmission={0.4}
-          thickness={0.5}
-          clearcoat={1}
-        />
+        <meshStandardMaterial color="#0a0e1a" metalness={0.8} roughness={0.1} />
       </mesh>
 
       {/* roof — solid color, slightly narrower */}
       <mesh position={[0.05, 1.05, 0]}>
         <boxGeometry args={[1.25 * cabinScale, 0.06, 1.0]} />
-        <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} clearcoatRoughness={0.05} />
+        <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
       </mesh>
 
       {/* windshield slope (front) — small angled wedge */}
       <mesh position={[0.78, 0.85, 0]} rotation={[0, 0, -0.55]}>
         <boxGeometry args={[0.45, 0.04, 1.05]} />
-        <meshPhysicalMaterial color="#0a0e1a" metalness={0.5} roughness={0.05} clearcoat={1} />
+        <meshStandardMaterial color="#0a0e1a" metalness={0.8} roughness={0.1} />
       </mesh>
 
       {/* rear window slope */}
       <mesh position={[-0.72, 0.85, 0]} rotation={[0, 0, 0.55]}>
         <boxGeometry args={[0.4, 0.04, 1.05]} />
-        <meshPhysicalMaterial color="#0a0e1a" metalness={0.5} roughness={0.05} clearcoat={1} />
+        <meshStandardMaterial color="#0a0e1a" metalness={0.8} roughness={0.1} />
       </mesh>
 
       {/* front bumper */}
@@ -174,7 +161,7 @@ function Sedan({ color, cabinScale = 1 }: { color: string; cabinScale?: number }
       {[-0.62, 0.62].map((z, i) => (
         <mesh key={i} position={[0.5, 0.78, z]}>
           <boxGeometry args={[0.1, 0.06, 0.08]} />
-          <meshPhysicalMaterial color={color} metalness={0.85} roughness={0.18} clearcoat={1} />
+          <meshStandardMaterial color={color} metalness={0.9} roughness={0.15} />
         </mesh>
       ))}
 
