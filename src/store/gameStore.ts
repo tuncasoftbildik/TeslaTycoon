@@ -181,32 +181,24 @@ export const useGameStore = create<GameState>((set, get) => ({
         const dur = businessDuration(def, b);
         const nextProgress = b.progress + deltaSec / dur;
         if (nextProgress >= 1) {
-          // cycle done
-          if (b.hasManager) {
-            const baseIncome = businessIncome(def, b, prestige);
-            const crit = Math.random() < CRIT_CHANCE;
-            const income = crit ? baseIncome * CRIT_MULT : baseIncome;
-            money += income;
-            totalEarned += income;
-            next[def.id] = {
-              ...b,
-              progress: 0,
-              running: true,
-              readyToCollect: false,
-              ...(crit ? { lastCritAt: Date.now(), lastCritMult: CRIT_MULT } : {}),
-            };
-          } else {
-            next[def.id] = { ...b, progress: 1, running: false, readyToCollect: true };
-          }
+          // cycle done — auto-collect income
+          const baseIncome = businessIncome(def, b, prestige);
+          const crit = Math.random() < CRIT_CHANCE;
+          const income = crit ? baseIncome * CRIT_MULT : baseIncome;
+          money += income;
+          totalEarned += income;
+          next[def.id] = {
+            ...b,
+            progress: 0,
+            running: b.hasManager, // manager keeps cycling automatically
+            readyToCollect: false,
+            ...(crit ? { lastCritAt: Date.now(), lastCritMult: CRIT_MULT } : {}),
+          };
           changed = true;
         } else if (nextProgress !== b.progress) {
           next[def.id] = { ...b, progress: nextProgress };
           changed = true;
         }
-      } else if (b.hasManager && !b.readyToCollect) {
-        // manager auto-start
-        next[def.id] = { ...b, running: true, progress: 0, readyToCollect: false };
-        changed = true;
       }
     }
 
